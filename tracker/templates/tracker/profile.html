@@ -1,0 +1,49 @@
+{% extends 'tracker/base.html' %}
+{% block title %}Profile - {{ user.username }}{% endblock %}
+
+{% block content %}
+<h2>{{ user.username }}'s Profile</h2>
+
+{% if profile.avatar %}
+    <img src="{{ profile.avatar.url }}" alt="Avatar" class="img-thumbnail" style="max-width: 150px;">
+{% endif %}
+
+<p><strong>Bio:</strong> {{ profile.bio }}</p>
+
+<hr>
+<h3>Skills</h3>
+<ul>
+    {% for skill in skills %}
+        <li>{{ skill.name }} ({{ skill.category }})</li>
+    {% empty %}
+        <li>No skills added yet.</li>
+    {% endfor %}
+</ul>
+
+<h3>Goals</h3>
+<ul>
+    {% for goal in goals %}
+        <li>{{ goal.description }} – {{ goal.skill.name }} ({{ goal.progress }}%)</li>
+    {% empty %}
+        <li>No goals set.</li>
+    {% endfor %}
+</ul>
+
+<h3>Progress Updates</h3>
+<ul>
+    {% for update in updates %}
+        <li>{{ update.date }}: {{ update.update_text|truncatechars:100 }} ({{ update.goal.skill.name }})</li>
+    {% empty %}
+        <li>No updates yet.</li>
+    {% endfor %}
+</ul>
+
+<h3>Resources</h3>
+<ul>
+    {% for resource in resources %}
+        <li><a href="{{ resource.link }}" target="_blank">{{ resource.title }}</a> – {{ resource.skill.name }}</li>
+    {% empty %}
+        <li>No resources added.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,49 @@
+# Virtual environment folders
+.venv/
+env/
+venv/
+
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore only compiled migration files
+*/migrations/*.pyc
+
+# SQLite database file
+db.sqlite3
+
+# Environment variables file
+.env
+
+# IDE/editor specific files
+.vscode/
+.idea/
+*.iml
+
+# MacOS files
+.DS_Store
+
+# Logs
+*.log
+
+# Static files (if you collectstatic, usually better to exclude)
+staticfiles/
+
+# Coverage reports
+htmlcov/
+.coverage
+
+# Pytest cache
+.pytest_cache/
+
+# mypy type checking cache
+.mypy_cache/
+
+# celery beat schedule file
+celerybeat-schedule
+
+# Sphinx documentation build
+docs/_build/
+

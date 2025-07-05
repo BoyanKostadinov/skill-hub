@@ -1,0 +1,111 @@
+{% extends 'tracker/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Welcome, {{ user.first_name|default:user.username }}!</h2>
+
+    <div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card text-bg-light shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Skills</h5>
+                <p class="card-text fs-3">{{ skill_count }}</p>
+                <a href="{% url 'skill-list' %}" class="btn btn-sm btn-outline-primary">View Skills</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card text-bg-light shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Learning Goals</h5>
+                <p class="card-text fs-3">{{ goal_count }}</p>
+                {% if skills %}
+                    <a href="{% url 'goal-add' skills.0.id %}" class="btn btn-sm btn-outline-success">+ Add Goal</a>
+                {% else %}
+                    <a href="{% url 'skill-list' %}" class="btn btn-sm btn-outline-secondary">Add a Skill First</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card text-bg-light shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Progress Updates</h5>
+                <p class="card-text fs-3">{{ progress_count }}</p>
+                <a href="{% url 'progress-form' %}" class="btn btn-sm btn-outline-info">+ Add Progress</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <hr class="my-5">
+    <h3 class="text-center mb-4">Your Skills & Goals</h3>
+
+    <div class="row">
+        {% for skill in skills %}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                      {{ skill.name }}
+                      {% if skill.is_complete %}
+                        <span class="badge bg-success ms-2">✅ Complete</span>
+                      {% endif %}
+                    </h5>
+                    <p><strong>Category:</strong> {{ skill.category }}</p>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">Learning Goals:</h6>
+                        <a href="{% url 'goal-add' skill.id %}" class="btn btn-sm btn-outline-success">+ Add Goal</a>
+                    </div>
+
+                    {% if skill.learninggoal_set.all %}
+                    <div class="accordion" id="accordionSkill{{ skill.id }}">
+                        {% for goal in skill.learninggoal_set.all %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingGoal{{ goal.id }}">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapseGoal{{ goal.id }}" aria-expanded="false"
+                                        aria-controls="collapseGoal{{ goal.id }}">
+                                    {{ goal.description }}
+                                </button>
+                            </h2>
+                            <div id="collapseGoal{{ goal.id }}" class="accordion-collapse collapse"
+                                 aria-labelledby="headingGoal{{ goal.id }}" data-bs-parent="#accordionSkill{{ skill.id }}">
+                                <div class="accordion-body">
+                                    <p>
+                                      <strong>Target Date:</strong> {{ goal.target_date }}
+                                      {% if goal.is_complete %}
+                                        <span class="badge bg-success ms-2">✅ Complete</span>
+                                      {% endif %}
+                                    </p>
+                                    <div class="progress mb-2" style="height: 20px;">
+                                        <div class="progress-bar" role="progressbar" style="width: {{ goal.progress }}%;"
+                                             aria-valuenow="{{ goal.progress }}" aria-valuemin="0" aria-valuemax="100">
+                                            {{ goal.progress }}%
+                                        </div>
+                                    </div>
+                                    <a href="{% url 'progress-form' %}?goal_id={{ goal.id }}" class="btn btn-sm btn-outline-info">+ Add Progress</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                        <p class="text-muted">No goals yet for this skill.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="text-center mt-5">
+        <h4>Keep growing, one skill at a time 🌱</h4>
+        <p class="text-muted">Use the top navigation to explore and update your skills.</p>
+    </div>
+</div>
+{% endblock %}
