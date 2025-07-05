@@ -23,6 +23,10 @@ class GoalForm(forms.ModelForm):
         model = LearningGoal
         fields = '__all__'
 
+        widgets = {
+            'target_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
 class ProgressForm(forms.ModelForm):
     class Meta:
         model = ProgressUpdate

@@ -1,4 +1,5 @@
 {% extends 'tracker/base.html' %}
+{% load dict_extras %}
 {% block title %}Profile - {{ user.username }}{% endblock %}
 
 {% block content %}
@@ -30,13 +31,49 @@
 </ul>
 
 <h3>Progress Updates</h3>
-<ul>
-    {% for update in updates %}
-        <li>{{ update.date }}: {{ update.update_text|truncatechars:100 }} ({{ update.goal.skill.name }})</li>
-    {% empty %}
-        <li>No updates yet.</li>
-    {% endfor %}
-</ul>
+
+{% if grouped_updates %}
+  {% for skill_id, goal_dict in grouped_updates.items %}
+    <div class="card mb-3">
+      <div class="card-header">
+        <strong>Skill: {{ skill_map|dict_get:skill_id }}</strong>  {# Use custom filter below #}
+      </div>
+      <div class="accordion" id="accordionSkill{{ skill_id }}">
+  {% for goal_id, updates in goal_dict.items %}
+    {% with goal=goal_map|dict_get:goal_id %}
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingGoal{{ goal.id }}">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseGoal{{ goal.id }}" aria-expanded="false"
+                aria-controls="collapseGoal{{ goal.id }}">
+          Goal: {{ goal.name }}
+        </button>
+      </h2>
+      <div id="collapseGoal{{ goal.id }}" class="accordion-collapse collapse"
+           aria-labelledby="headingGoal{{ goal.id }}" data-bs-parent="#accordionSkill{{ skill_id }}">
+        <div class="accordion-body">
+          <p><strong>Description:</strong> {{ goal.description }}</p>
+          <ul class="list-group">
+            {% for update in updates %}
+              <li class="list-group-item">
+                <strong>{{ update.date }}</strong>: {{ update.update_text|truncatechars:100 }}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+    {% endwith %}
+  {% endfor %}
+</div>
+
+    </div>
+  {% endfor %}
+{% else %}
+  <p>No progress updates found.</p>
+{% endif %}
+
+
 
 <h3>Resources</h3>
 <ul>

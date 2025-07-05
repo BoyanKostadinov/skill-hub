@@ -6,6 +6,8 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.db import models
 from django.db.models import Prefetch
+from django import forms
+from collections import defaultdict
 
 from tracker.forms import ProgressForm
 from tracker.models import Skill, LearningGoal, ProgressUpdate, Resource
@@ -44,7 +46,7 @@ class SkillDetailView(LoginRequiredMixin, DetailView):
 
 class GoalCreateView(LoginRequiredMixin, CreateView):
     model = LearningGoal
-    fields = ['skill', 'description', 'target_date']
+    fields = ['skill', 'name', 'description', 'target_date']
     template_name = 'tracker/goal_form.html'
     success_url = reverse_lazy('dashboard')
 
@@ -59,6 +61,7 @@ class GoalCreateView(LoginRequiredMixin, CreateView):
         form = super().get_form(form_class)
         # Limit skill choices to user's own skills
         form.fields['skill'].queryset = Skill.objects.filter(owner=self.request.user)
+        form.fields['target_date'].widget = forms.DateInput(attrs={'type': 'date'})
         return form
 
 class ProgressCreateView(LoginRequiredMixin, CreateView):
@@ -127,11 +130,32 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
-        context['profile'] = user.profile
-        context['skills'] = Skill.objects.filter(owner=user)
-        context['goals'] = LearningGoal.objects.filter(skill__owner=user)
-        context['updates'] = ProgressUpdate.objects.filter(goal__skill__owner=user)
-        context['resources'] = Resource.objects.filter(skill__owner=user)
+        skills = Skill.objects.filter(owner=user)
+        goals = LearningGoal.objects.filter(skill__in=skills)
+        updates = ProgressUpdate.objects.filter(goal__in=goals).select_related('goal', 'goal__skill')
+
+        temp_grouped = defaultdict(lambda: defaultdict(list))
+        for update in updates:
+            temp_grouped[update.goal.skill.id][update.goal.id].append(update)
+
+        # Convert to regular dict of dicts
+        grouped_updates = {
+            skill_id: dict(goals)
+            for skill_id, goals in temp_grouped.items()
+        }
+
+
+
+        context.update({
+            'profile': user.profile,
+            'skills': skills,
+            'goals': goals,
+            'updates': updates,
+            'resources': Resource.objects.filter(skill__owner=user),
+            'grouped_updates': grouped_updates,
+            'skill_map': {skill.id: skill for skill in skills},  # ✅ Add this
+            'goal_map': {goal.id: goal for goal in goals},  # ✅ And this
+        })
 
         return context
 

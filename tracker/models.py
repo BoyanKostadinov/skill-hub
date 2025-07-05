@@ -56,6 +56,12 @@ class LearningGoal(models.Model):
         on_delete=models.CASCADE,
     )
 
+    name = models.CharField(
+        max_length=100,
+        null=False,
+        blank=False,
+    )
+
     description = models.TextField()
 
     target_date = models.DateField()
