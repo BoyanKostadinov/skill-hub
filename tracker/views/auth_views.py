@@ -20,15 +20,18 @@ def register_view(request):
 def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
-        user = authenticate(
-            username = form.data['username'],
-            password = form.data['password']
-        )
-        if user:
-            login(request, user)
-            return redirect('dashboard')
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user:
+                login(request, user)
+                return redirect('dashboard')
+            else:
+                form.add_error(None, "Invalid username or password.")
     else:
         form = LoginForm()
+
     return render(request, 'tracker/login.html', {'form': form})
 
 def logout_view(request):

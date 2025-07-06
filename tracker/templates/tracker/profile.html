@@ -74,13 +74,41 @@
 {% endif %}
 
 
+<div class="mb-5">
+    <h3>Resources</h3>
+    {% if resources %}
+      <div class="accordion" id="accordionResources">
+        {% for skill_id, res_list in resources.items %}
+          {% with skill=skill_map|dict_get:skill_id %}
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingResource{{ skill.id }}">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#collapseResource{{ skill.id }}" aria-expanded="false"
+                      aria-controls="collapseResource{{ skill.id }}">
+                {{ skill.name }} ({{ res_list|length }} resource{{ res_list|length|pluralize }})
+              </button>
+            </h2>
+            <div id="collapseResource{{ skill.id }}" class="accordion-collapse collapse"
+                 aria-labelledby="headingResource{{ skill.id }}" data-bs-parent="#accordionResources">
+              <div class="accordion-body">
+                <ul class="list-group list-group-flush">
+                  {% for resource in res_list %}
+                    <li class="list-group-item">
+                      <a href="{{ resource.link }}" target="_blank" class="fw-bold">{{ resource.title }}</a><br>
+                      <small class="text-muted">{{ resource.description }}</small>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+          {% endwith %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted">No resources added.</p>
+    {% endif %}
+</div>
 
-<h3>Resources</h3>
-<ul>
-    {% for resource in resources %}
-        <li><a href="{{ resource.link }}" target="_blank">{{ resource.title }}</a> – {{ resource.skill.name }}</li>
-    {% empty %}
-        <li>No resources added.</li>
-    {% endfor %}
-</ul>
+
 {% endblock %}

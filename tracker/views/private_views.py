@@ -144,17 +144,25 @@ class ProfileView(LoginRequiredMixin, TemplateView):
             for skill_id, goals in temp_grouped.items()
         }
 
+        resource_groups = defaultdict(list)
+        skill_map = {}
+        for skill in skills:
+            resources = Resource.objects.filter(skill=skill, approved=True)
+            if resources.exists():
+                resource_groups[skill.id] = list(resources)
+                skill_map[skill.id] = skill
 
+        resource_groups = dict(resource_groups)
 
         context.update({
             'profile': user.profile,
             'skills': skills,
             'goals': goals,
             'updates': updates,
-            'resources': Resource.objects.filter(skill__owner=user),
             'grouped_updates': grouped_updates,
-            'skill_map': {skill.id: skill for skill in skills},  # ✅ Add this
-            'goal_map': {goal.id: goal for goal in goals},  # ✅ And this
+            'goal_map': {goal.id: goal for goal in goals},
+            'resources': resource_groups,
+            'skill_map': skill_map,
         })
 
         return context
