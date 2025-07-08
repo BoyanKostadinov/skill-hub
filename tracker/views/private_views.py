@@ -9,8 +9,8 @@ from django.db.models import Prefetch
 from django import forms
 from collections import defaultdict
 
-from tracker.forms import ProgressForm
-from tracker.models import Skill, LearningGoal, ProgressUpdate, Resource
+from tracker.forms import ProgressForm, ProfileForm
+from tracker.models import Skill, LearningGoal, ProgressUpdate, Resource, Profile
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -172,3 +172,34 @@ class GoalUpdateView(LoginRequiredMixin, UpdateView):
     fields = ['description', 'target_date', 'progress']
     template_name = 'tracker/goal_form.html'
     success_url = reverse_lazy('dashboard')
+
+class ResourceCreateView(LoginRequiredMixin, CreateView):
+    model = Resource
+    fields = ['skill', 'title', 'link']
+    template_name = 'tracker/resource_form.html'
+    success_url = reverse_lazy('dashboard')  # or redirect to profile or skill detail
+
+    def form_valid(self, form):
+        form.instance.submitted_by = self.request.user  # if you track who added the resource
+        # Optionally set `approved = False` and let admin review it
+        form.instance.approved = False
+        return super().form_valid(form)
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['skill'].queryset = Skill.objects.filter(owner=self.request.user)
+        return form
+
+
+class UserProfileEditView(LoginRequiredMixin, UpdateView):
+    model = Profile
+    form_class = ProfileForm
+    template_name = 'tracker/edit_profile.html'
+    success_url = reverse_lazy('profile')
+
+    def get_object(self):
+        return self.request.user.profile
+
+    def form_valid(self, form):
+        form.instance.is_approved = False
+        return super().form_valid(form)

@@ -5,11 +5,22 @@
 {% block content %}
 <h2>{{ user.username }}'s Profile</h2>
 
-{% if profile.avatar %}
+{% if profile.avatar and profile.is_approved %}
     <img src="{{ profile.avatar.url }}" alt="Avatar" class="img-thumbnail" style="max-width: 150px;">
 {% endif %}
 
-<p><strong>Bio:</strong> {{ profile.bio }}</p>
+{% if profile.bio and profile.is_approved %}
+    <p><strong>Bio:</strong> {{ profile.bio }}</p>
+{% endif %}
+
+{% if not profile.is_approved %}
+  <p class="text-warning mt-2">Your profile changes are awaiting admin approval.</p>
+{% endif %}
+
+{% if user == request.user %}
+  <a href="{% url 'edit-profile' %}" class="btn btn-sm btn-outline-primary mt-2">Edit Profile</a>
+{% endif %}
+
 
 <hr>
 <h3>Skills</h3>

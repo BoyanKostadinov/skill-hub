@@ -19,6 +19,10 @@ class Profile(models.Model):
         upload_to='avatars/',
     )
 
+    is_approved = models.BooleanField(
+        default=False,
+    )
+
     def __str__(self):
         return self.user.username
 
