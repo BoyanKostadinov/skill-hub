@@ -16,7 +16,6 @@ urlpatterns = [
     path('skill/add/', private_views.SkillCreateView.as_view(), name='skill-add'),
     path('skill/<int:pk>/', private_views.SkillDetailView.as_view(), name='skill-detail'),
     path('skill/<int:pk>/edit/', SkillUpdateView.as_view(), name='skill-update'),
-    path('goal/add', private_views.GoalCreateView.as_view(), name='goal-add'),
     path('progress/add/', ProgressCreateView.as_view(), name='progress-form'),
     path('skill/<int:pk>/delete/', SkillDeleteView.as_view(), name='skill-delete'),
     path('profile/', private_views.ProfileView.as_view(), name='profile'),

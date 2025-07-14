@@ -12,6 +12,12 @@ class RegisterForm(UserCreationForm):
         model = User
         fields = ('username', 'email', 'password1', 'password2')
 
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("An account with this email already exists.")
+        return email
+
 class SkillForm(forms.ModelForm):
     class Meta:
         model = Skill
@@ -46,3 +52,9 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['bio', 'avatar']
+
+    def clean_bio(self):
+        bio = self.cleaned_data.get('bio')
+        if len(bio) < 10:
+            raise forms.ValidationError("Biography must be at least 10 characters long.")
+        return bio

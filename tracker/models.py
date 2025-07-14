@@ -46,6 +46,10 @@ class Skill(models.Model):
         on_delete=models.CASCADE,
     )
 
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
     @property
     def is_complete(self):
         goals = self.learninggoal_set.all()
