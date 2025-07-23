@@ -1,6 +1,10 @@
 from django.urls import path
 from tracker.views import public_views, auth_views, private_views
-from tracker.views.private_views import ProgressCreateView, SkillUpdateView, SkillDeleteView, ResourceCreateView, UserProfileEditView
+from tracker.views.private_views import (ProgressCreateView,
+                                         SkillUpdateView,
+                                         SkillDeleteView,
+                                         ResourceCreateView,
+                                         UserProfileEditView)
 
 urlpatterns = [
     path('', public_views.home_view, name='home'),
@@ -23,6 +27,6 @@ urlpatterns = [
     path('goal/edit/<int:pk>/', private_views.GoalUpdateView.as_view(), name='goal-edit'),
     path('resources/add/', ResourceCreateView.as_view(), name='resource-add'),
     path('profile/edit/', UserProfileEditView.as_view(), name='edit-profile'),
-
+    path('goal/<int:pk>/delete/', private_views.GoalDeleteView.as_view(), name='goal-delete'),
 
 ]

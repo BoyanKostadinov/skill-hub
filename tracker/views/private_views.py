@@ -90,10 +90,10 @@ class ProgressCreateView(LoginRequiredMixin, CreateView):
             form.add_error(None, "Goal ID is required.")
             return self.form_invalid(form)
 
-        # Save the form *after* assigning the goal
+        # The form is assigning after the goal
         response = super().form_valid(form)
 
-        # Recalculate total progress for the goal
+        # Total progress is recalculated for the goal
         total_progress = goal.progressupdate_set.aggregate(total=models.Sum('progress'))['total'] or 0
         goal.progress = min(total_progress, 100)
         goal.save()
@@ -123,6 +123,11 @@ class SkillDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'tracker/skill_confirm_delete.html'
     success_url = reverse_lazy('dashboard')
 
+class GoalDeleteView(LoginRequiredMixin, DeleteView):
+    model = LearningGoal
+    template_name = 'tracker/goal_confirm_delete.html'
+    success_url = reverse_lazy('dashboard')
+
 class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'tracker/profile.html'
 
@@ -147,10 +152,12 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         resource_groups = defaultdict(list)
         skill_map = {}
         for skill in skills:
+            skill_map[skill.id] = skill
+
             resources = Resource.objects.filter(skill=skill, approved=True)
             if resources.exists():
                 resource_groups[skill.id] = list(resources)
-                skill_map[skill.id] = skill
+
 
         resource_groups = dict(resource_groups)
 
@@ -169,9 +176,13 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
 class GoalUpdateView(LoginRequiredMixin, UpdateView):
     model = LearningGoal
-    fields = ['description', 'target_date', 'progress']
+    fields = ['name', 'description', 'target_date', 'progress']
     template_name = 'tracker/goal_form.html'
     success_url = reverse_lazy('dashboard')
+
+    def get_queryset(self):
+        # This ensures users can only edit their own goals
+        return LearningGoal.objects.filter(skill__owner=self.request.user)
 
 class ResourceCreateView(LoginRequiredMixin, CreateView):
     model = Resource
@@ -180,8 +191,8 @@ class ResourceCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('dashboard')  # or redirect to profile or skill detail
 
     def form_valid(self, form):
-        form.instance.submitted_by = self.request.user  # if you track who added the resource
-        # Optionally set `approved = False` and let admin review it
+        form.instance.added_by = self.request.user  # Track who added the resource
+        # By default, approved is set to False. The admin will approve it.
         form.instance.approved = False
         return super().form_valid(form)
 

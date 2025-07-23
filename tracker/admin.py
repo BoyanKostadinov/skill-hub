@@ -23,8 +23,21 @@ class GoalAdmin(admin.ModelAdmin):
 
 @admin.register(Resource)
 class ResourceAdmin(admin.ModelAdmin):
-    list_display = ('title', 'skill', 'approved')
+    list_display = ('title', 'skill', 'approved', 'added_by')
     list_filter = ('approved',)
+    readonly_fields = ('added_by',)
+    fields = ('title', 'skill', 'link', 'approved', 'added_by')
+
+    def save_model(self, request, obj, form, change):
+        if not obj.added_by:
+            obj.added_by = request.user
+        super().save_model(request, obj, form, change)
+
+    def get_readonly_fields(self, request, obj=None):
+        # Added_by is read-only after the object is created
+        if obj:
+            return self.readonly_fields + ('added_by',)
+        return self.readonly_fields
 
 admin.site.register(Profile)
 admin.site.register(ProgressUpdate)
@@ -39,7 +52,7 @@ class CustomUserChangeForm(forms.ModelForm):
         is_staff = self.cleaned_data.get('is_staff')
         is_superuser = self.cleaned_data.get('is_superuser')
 
-        # If not staff/superuser, prevent assignment to admin groups
+        # If the user is not staff or superuser, prevent including them to admin groups
         admin_groups = Group.objects.filter(name__in=['SuperAdmin', 'StaffAdmin'])
 
         if not is_staff and not is_superuser:

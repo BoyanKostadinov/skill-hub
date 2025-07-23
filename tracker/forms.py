@@ -27,11 +27,12 @@ class SkillForm(forms.ModelForm):
 class GoalForm(forms.ModelForm):
     class Meta:
         model = LearningGoal
-        fields = '__all__'
+        fields = ['name', 'description', 'target_date', 'progress']  # omit 'skill' if set in the view
 
         widgets = {
             'target_date': forms.DateInput(attrs={'type': 'date'}),
         }
+
 
 class ProgressForm(forms.ModelForm):
     class Meta:

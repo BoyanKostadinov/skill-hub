@@ -6,17 +6,18 @@ from django.contrib.contenttypes.models import ContentType
 
 @receiver(post_migrate)
 def create_admin_groups(sender, **kwargs):
-    # Define groups and the permissions you want to assign
+    # Defining groups and permissions that need to be assigned
     superadmin_group, _ = Group.objects.get_or_create(name='SuperAdmin')
     staffadmin_group, _ = Group.objects.get_or_create(name='StaffAdmin')
 
-    # Give SuperAdmin full permissions to all models
+    # Provide each SuperAdmin user all permissions to all models
     for model in apps.get_models():
         ct = ContentType.objects.get_for_model(model)
         perms = Permission.objects.filter(content_type=ct)
         superadmin_group.permissions.add(*perms)
 
-    # StaffAdmin limited permissions (example: can add/view/change Skill and LearningGoal, but not delete or manage users)
+    # Provide each StaffAdmin with limited permissions
+    # They can add, view and change Skill, LearningGoal and ProgressUpdate, but can not delete or manage users
     allowed_models = ['skill', 'learninggoal', 'progressupdate']
     allowed_actions = ['add', 'change', 'view']
 

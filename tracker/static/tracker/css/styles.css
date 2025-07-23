@@ -1,12 +1,93 @@
+/* Base styling */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Arial, sans-serif;
     background-color: #f9f9f9;
-
-    <style>
-      .badge {
-        font-size: 0.8rem;
-        padding: 0.3em 0.6em;
-        border-radius: 0.4em;
-      }
-    </style>
+    margin: 0;
+    padding: 0;
+    color: #333;
 }
+
+/* Typography */
+h1, h2, h3, h4 {
+    font-weight: 600;
+}
+
+a {
+    text-decoration: none;
+}
+
+/* Navbar */
+.navbar-brand {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+/* Card polish */
+.card {
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Button tweaks */
+.btn {
+    border-radius: 50px;
+    padding: 0.4rem 1rem;
+    transition: transform 0.2s ease;
+}
+
+a.btn-sm {
+    font-size: 0.85rem;
+}
+
+/* Badges */
+.badge {
+    font-size: 0.8rem;
+    padding: 0.3em 0.6em;
+    border-radius: 0.4em;
+}
+
+/* Accordion */
+.accordion-button {
+    background-color: #f1f1f1;
+    font-weight: 500;
+    border-radius: 0.4rem;
+}
+
+.accordion-collapse {
+    transition: all 0.3s ease-in-out;
+}
+
+.accordion-body {
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* Progress bar */
+.progress {
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    font-weight: 500;
+}
+
+/* Section spacing */
+.container > .row {
+    margin-bottom: 2rem;
+}
+
+/* Card title highlight */
+.card-title {
+    color: #0d6efd; /* Bootstrap primary */
+    font-weight: 600;
+}
+
+/* Focus styles for accessibility */
+button:focus,
+.btn:focus,
+.accordion-button:focus {
+    outline: 2px dashed #0d6efd;
+    outline-offset: 2px;
+}
+

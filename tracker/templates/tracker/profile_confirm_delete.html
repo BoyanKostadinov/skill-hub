@@ -1,0 +1,14 @@
+<!-- templates/tracker/profile_confirm_delete.html -->
+{% extends 'tracker/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Confirm Profile Deletion</h2>
+    <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+    <form method="post">
+        {% csrf_token %}
+        <a href="{% url 'profile' %}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-danger">Delete My Account</button>
+    </form>
+</div>
+{% endblock %}
