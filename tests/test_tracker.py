@@ -1,9 +1,11 @@
+import datetime
+
 from django.db import IntegrityError
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
-from tracker.forms import RegisterForm, SkillForm
-from tracker.models import Skill
+from tracker.forms import RegisterForm, SkillForm, GoalForm
+from tracker.models import Skill, LearningGoal
 from tracker.signals import User
 
 UserModel = get_user_model()
@@ -136,3 +138,56 @@ class TestSkillForm(TestCase):
         # The "owner" field should not be part of the form.
         form = SkillForm()
         self.assertNotIn('owner', form.fields)
+
+
+class TestGoalForm(TestCase):
+    def setUp(self):
+        self.user = UserModel.objects.create_user(
+            username="TestUsername",
+            email="test@test.com",
+            password="12Test34"
+        )
+    def test_goal_form_valid_data(self):
+        # Create a skill
+        skill = Skill.objects.create(
+            name="Test Skill Name",
+            description="Test Skill Description",
+            category= "Test Goal Category",
+            difficulty= 'Test Diff',
+            owner=self.user
+        )
+
+        # Form should be valid with correct data
+        form_data = {
+            "name": "Test Goal",
+            "description": "Test Goal Description",
+            'target_date': datetime.date.today(),
+            'progress': 0,
+        }
+
+        form = GoalForm(data=form_data)
+        self.assertTrue(form.is_valid(), form.errors)
+
+        goal = form.save(commit=False)
+        goal.owner = self.user
+        goal.skill = skill
+        goal.save()
+
+        self.assertEqual(LearningGoal.objects.count(), 1)
+        self.assertEqual(goal.name, "Test Goal")
+        self.assertEqual(goal.skill, skill)
+
+    def test_goal_from_missing_required_fields(self):
+        # Form is expected to be invalid when required fields are missing
+        form = GoalForm(data={})
+        self.assertFalse(form.is_valid())
+        self.assertIn('name', form.errors)
+        self.assertIn('description', form.errors)
+        self.assertIn('target_date', form.errors)
+        self.assertIn('progress', form.errors)
+
+    def test_goal_form_target_date_widget(self):
+        # The target_date widget should be a date input
+        form = GoalForm()
+        widget = form.fields['target_date'].widget
+        self.assertEqual(widget.input_type, 'date')
